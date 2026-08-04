@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#10b981">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="My Health">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<title>My Health</title>
+<style>
+  :root{
+    --green:#10b981; --green2:#059669; --teal:#14b8a6;
+    --bg:#f1f6f4; --card:#ffffff; --ink:#0f2e25; --sub:#6b8f83;
+    --line:#e3efea; --warn:#f59e0b; --pink:#ec4899; --blue:#3b82f6;
+    --shadow:0 6px 22px rgba(16,120,90,.10);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink)}
+  body{max-width:520px;margin:0 auto;padding-bottom:86px;min-height:100vh}
+  h1,h2,h3{margin:0}
+
+  /* ---------- BANNER ---------- */
+  .header{position:relative;overflow:hidden;color:#fff;padding:20px 18px 32px;border-radius:0 0 30px 30px;box-shadow:var(--shadow);
+    background:linear-gradient(135deg,#0891b2 0%,#0ea57a 45%,#16a34a 100%)}
+  .header .hbg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .hrow{position:relative;display:flex;justify-content:space-between;align-items:flex-start}
+  .header .hi{font-size:14px;opacity:.92}
+  .header .name{font-size:23px;font-weight:800;margin-top:2px;letter-spacing:.2px}
+  .header .date{font-size:12.5px;opacity:.85;margin-top:3px}
+  .hbadge{width:54px;height:54px;border-radius:17px;background:rgba(255,255,255,.20);display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 4px 14px rgba(0,0,0,.15)}
+  .hfoot{position:relative;display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .streak{background:rgba(255,255,255,.22);padding:6px 13px;border-radius:20px;font-size:13px;font-weight:700}
+  .tagline{font-size:12px;opacity:.92;font-style:italic}
+
+  .wrap{padding:16px 16px 0}
+  .card{background:var(--card);border-radius:18px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+  .card h3{font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .muted{color:var(--sub);font-size:13px}
+  .btn{border:none;border-radius:14px;padding:13px 16px;font-size:15px;font-weight:600;color:#fff;background:linear-gradient(135deg,var(--green),var(--green2));width:100%;cursor:pointer}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#eef7f3;color:var(--green2)}
+  .btn.sm{width:auto;padding:9px 14px;font-size:13px;border-radius:11px}
+  input,select,textarea{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:12px;font-size:15px;background:#fbfefd;color:var(--ink);margin-top:6px}
+  label{font-size:13px;color:var(--sub);font-weight:600}
+  .row{display:flex;gap:10px}
+  .row>div{flex:1;min-width:0}            /* min-width:0 stops the overlap */
+
+  .ring-wrap{display:flex;align-items:center;gap:16px}
+  .ring{position:relative;width:96px;height:96px;flex:0 0 auto}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .pct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .ring .pct b{font-size:20px}
+  .ring .pct span{font-size:11px;color:var(--sub)}
+
+  .habit{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .habit:last-child{border-bottom:none}
+  .habit .ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;background:#eef7f3;flex:0 0 auto}
+  .habit .t{flex:1;min-width:0}
+  .habit .t b{font-size:15px}
+  .habit .t small{color:var(--sub);font-size:12px}
+  .check{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;cursor:pointer;flex:0 0 auto}
+  .check.on{background:var(--green);border-color:var(--green)}
+  .waterbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+  .wglass{font-size:22px;cursor:pointer;filter:grayscale(1);opacity:.5}
+  .wglass.full{filter:none;opacity:1}
+
+  .nav{position:fixed;bottom:0;left:0;right:0;max-width:520px;margin:0 auto;background:#fff;display:flex;border-top:1px solid var(--line);box-shadow:0 -4px 18px rgba(0,0,0,.05)}
+  .nav button{flex:1;background:none;border:none;padding:10px 0 12px;font-size:11px;color:var(--sub);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .nav button .ni{font-size:21px}
+  .nav button.active{color:var(--green2);font-weight:700}
+  .page{display:none}
+  .page.active{display:block}
+
+  .item{display:flex;align-items:center;gap:10px;padding:11px;background:#fbfefd;border:1px solid var(--line);border-radius:13px;margin-bottom:9px}
+  .item .t{flex:1;min-width:0}
+  .item .t b{font-size:14px}
+  .item .t small{color:var(--sub);font-size:12px;display:block}
+  .x{color:#c74b4b;background:none;border:none;font-size:19px;cursor:pointer;padding:4px;flex:0 0 auto}
+  .ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;background:#eef7f3;flex:0 0 auto}
+  .pill{display:inline-block;font-size:11px;padding:3px 9px;border-radius:20px;background:#eef7f3;color:var(--green2);font-weight:600}
+  .pill.blue{background:#e8f1ff;color:var(--blue)}
+  .pill.pink{background:#fde8f3;color:var(--pink)}
+  .big{font-size:30px;font-weight:800}
+  .center{text-align:center}
+  canvas{width:100%;height:auto;display:block;margin-top:6px}
+  .tip{background:linear-gradient(135deg,#ecfdf5,#e0f2fe);border-radius:14px;padding:13px;font-size:13px;line-height:1.5;color:#0f4c3a;margin-bottom:12px}
+  .empty{text-align:center;color:var(--sub);font-size:13px;padding:18px 6px}
+  .fab-note{font-size:11px;color:var(--sub);text-align:center;margin:2px 0 10px}
+  dialog{border:none;border-radius:18px;padding:18px;width:90%;max-width:410px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  dialog::backdrop{background:rgba(15,46,37,.45)}
+  .dlg-title{font-size:16px;font-weight:700;margin-bottom:10px}
+  .close-row{display:flex;gap:10px;margin-top:14px}
+  .daychips{display:flex;gap:5px;margin-top:8px}
+  .daychip{flex:1;min-width:0;padding:9px 0;border:1.5px solid var(--line);border-radius:10px;background:#fbfefd;font-size:11px;font-weight:700;color:var(--sub);cursor:pointer}
+  .daychip.on{background:var(--green);border-color:var(--green);color:#fff}
+  .quickdays{display:flex;gap:8px;margin-top:8px}
+  .quickdays .qd{flex:1;min-width:0;padding:9px;border:none;border-radius:10px;background:#eef7f3;color:var(--green2);font-size:12px;font-weight:700;cursor:pointer}
+  .iconpick{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;max-height:132px;overflow-y:auto;padding:4px;border:1.5px solid var(--line);border-radius:12px;background:#fbfefd}
+  .iconpick button{width:40px;height:40px;border:none;border-radius:10px;background:#fff;font-size:21px;cursor:pointer;flex:0 0 auto}
+  .iconpick button.on{background:var(--green);box-shadow:0 0 0 2px var(--green2) inset}
+  .bmibar{height:12px;border-radius:8px;background:linear-gradient(90deg,#3b82f6,#10b981 35%,#f59e0b 70%,#ef4444);position:relative;margin:14px 0 6px}
+  .bmibar .dot{position:absolute;top:-4px;width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid var(--ink);transform:translateX(-50%)}
+  .kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .kv:last-child{border-bottom:none}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{border:1.5px solid var(--line);background:#fbfefd;border-radius:20px;padding:8px 12px;font-size:13px;font-weight:600;color:var(--green2);cursor:pointer}
+  .chip:active{background:#eef7f3}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <svg class="hbg" viewBox="0 0 520 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="450" cy="20" r="75" fill="rgba(255,255,255,0.10)"/>
+    <circle cx="505" cy="115" r="42" fill="rgba(255,255,255,0.08)"/>
+    <circle cx="50" cy="165" r="60" fill="rgba(255,255,255,0.06)"/>
+    <path d="M0,178 Q130,150 260,172 T520,166 L520,200 L0,200 Z" fill="rgba(255,255,255,0.10)"/>
+  </svg>
+  <div class="hrow">
+    <div>
+      <div class="hi">Namaste 🙏</div>
+      <div class="name" id="hName">Friend</div>
+      <div class="date" id="hDate"></div>
+    </div>
+    <div class="hbadge">🚶</div>
+  </div>
+  <div class="hfoot">
+    <span class="streak" id="hStreak">🔥 0 day streak</span>
+    <span class="tagline">Small steps daily → big change</span>
+  </div>
+</div>
+
+<!-- TODAY -->
+<div class="page active" id="p-today">
+  <div class="wrap">
+    <div class="card">
+      <div class="ring-wrap">
+        <div class="ring">
+          <svg width="96" height="96">
+            <circle cx="48" cy="48" r="42" stroke="#eef7f3" stroke-width="10" fill="none"/>
+            <circle id="ringFill" cx="48" cy="48" r="42" stroke="url(#g1)" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264"/>
+            <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#10b981"/><stop offset="1" stop-color="#14b8a6"/></linearGradient></defs>
+          </svg>
+          <div class="pct"><b id="ringPct">0%</b><span>done</span></div>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700" id="doneMsg">Let's start your day!</div>
+          <div class="muted" id="doneCount">0 of 0 done</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>💧 Water today</h3>
+      <div class="muted">Goal: <span id="wGoal">8</span> glasses. Tap a glass when you drink.</div>
+      <div class="waterbtns" id="waterRow"></div>
+    </div>
+    <div class="card">
+      <h3>📝 Today's plan</h3>
+      <div id="planList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PLAN -->
+<div class="page" id="p-plan">
+  <div class="wrap">
+    <div class="tip">🔔 Reminders pop up while the app is open. Install it (Me tab) and turn on notifications for the best experience.</div>
+    <button class="btn" onclick="openReminder()">+ Add reminder / habit</button>
+    <div class="fab-note">Type any name and pick the days it should repeat.</div>
+    <div class="card"><h3>🗓️ My reminders</h3><div id="remList"></div></div>
+    <div class="card">
+      <h3>🍲 Recipe / meal-prep days</h3>
+      <div class="muted" style="margin-bottom:10px">Fix a dish for a weekday. It then appears in the Diet tab on that day.</div>
+      <button class="btn ghost" onclick="openRecipe()">+ Add a recipe day</button>
+      <div id="recipeList" style="margin-top:12px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DIET -->
+<div class="page" id="p-diet">
+  <div class="wrap">
+    <div class="card">
+      <h3>🍽️ Log a meal</h3>
+      <div id="dietSuggest"></div>
+      <div class="row">
+        <div><label>Meal</label>
+          <select id="mealType"><option>Breakfast</option><option>Mid-morning</option><option>Lunch</option><option>Evening snack</option><option>Dinner</option></select>
+        </div>
+        <div><label>Time</label><input type="time" id="mealTime"></div>
+      </div>
+      <label style="margin-top:8px;display:block">Dish name</label>
+      <input id="mealFood" placeholder="e.g. 2 roti, dal, salad" list="dishOptions">
+      <datalist id="dishOptions"></datalist>
+      <button class="btn" style="margin-top:10px" onclick="addMeal()">Add to today's plan</button>
+    </div>
+    <div class="card"><h3>📋 Today's meals</h3><div id="dietList"></div></div>
+  </div>
+</div>
+
+<!-- WEIGHT -->
+<div class="page" id="p-weight">
+  <div class="wrap">
+    <div class="card center">
+      <div class="muted">Current weight</div>
+      <div class="big" id="curW">—</div>
+      <div id="wDelta" class="muted"></div>
+    </div>
+    <div class="card">
+      <h3>➕ Add today's weight</h3>
+      <div class="row">
+        <div><label>Weight (kg)</label><input type="number" step="0.1" id="wInput" placeholder="e.g. 68.5"></div>
+        <div style="flex:0 0 auto;display:flex;align-items:flex-end"><button class="btn sm" onclick="addWeight()">Save</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>🧮 Your BMI & healthy range</h3>
+      <div id="bmiBox"><div class="muted">Add your height (Me tab) and a weight to see this.</div></div>
+    </div>
+    <div class="card">
+      <h3>📉 Progress</h3>
+      <canvas id="wChart" width="480" height="240"></canvas>
+      <div id="wHist" style="margin-top:10px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ME -->
+<div class="page" id="p-me">
+  <div class="wrap">
+    <div class="card" id="installCard" style="display:none">
+      <h3>📲 Install this app</h3>
+      <div class="muted" style="margin-bottom:10px">Add it to your phone like a real app.</div>
+      <button class="btn" onclick="installApp()">Install now</button>
+    </div>
+    <div class="card">
+      <h3>🙂 About me</h3>
+      <label>Your name</label><input id="setName" placeholder="Your name">
+      <div class="row" style="margin-top:8px">
+        <div><label>Height (cm)</label><input type="number" id="setHeight" placeholder="e.g. 165"></div>
+        <div><label>Goal weight (kg)</label><input type="number" step="0.1" id="setGoal" placeholder="e.g. 62"></div>
+      </div>
+      <label style="margin-top:8px;display:block">Water goal (glasses)</label><input type="number" id="setWater" value="8">
+      <button class="btn" style="margin-top:12px" onclick="saveSettings()">Save</button>
+    </div>
+    <div class="card">
+      <h3>🔔 Notifications</h3>
+      <div class="muted" style="margin-bottom:10px">Allow reminders to pop up on this phone.</div>
+      <button class="btn ghost" onclick="askNotif()">Turn on reminders</button>
+      <div id="notifState" class="muted" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <h3>💚 My weight-loss basics</h3>
+      <div class="muted" id="tipBox" style="line-height:1.6"></div>
+    </div>
+    <div class="card"><button class="btn ghost" onclick="resetDay()">Reset today's checkmarks</button></div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="active" data-p="today" onclick="go('today')"><span class="ni">🏠</span>Today</button>
+  <button data-p="plan" onclick="go('plan')"><span class="ni">🗓️</span>Plan</button>
+  <button data-p="diet" onclick="go('diet')"><span class="ni">🍽️</span>Diet</button>
+  <button data-p="weight" onclick="go('weight')"><span class="ni">⚖️</span>Weight</button>
+  <button data-p="me" onclick="go('me')"><span class="ni">🙂</span>Me</button>
+</div>
+
+<dialog id="dlgRem">
+  <div class="dlg-title">Add reminder / habit</div>
+  <label>Name</label><input id="remName" placeholder="e.g. Soak almonds">
+  <label style="margin-top:8px;display:block">Time</label><input type="time" id="remTime">
+  <label style="margin-top:8px;display:block">Pick an icon</label>
+  <div class="iconpick" id="iconPick"></div>
+  <label style="margin-top:10px;display:block">Repeat on these days</label>
+  <div class="daychips" id="dayChips">
+    <button type="button" class="daychip" data-day="1" onclick="toggleDay(this)">Mon</button>
+    <button type="button" class="daychip" data-day="2" onclick="toggleDay(this)">Tue</button>
+    <button type="button" class="daychip" data-day="3" onclick="toggleDay(this)">Wed</button>
+    <button type="button" class="daychip" data-day="4" onclick="toggleDay(this)">Thu</button>
+    <button type="button" class="daychip" data-day="5" onclick="toggleDay(this)">Fri</button>
+    <button type="button" class="daychip" data-day="6" onclick="toggleDay(this)">Sat</button>
+    <button type="button" class="daychip" data-day="0" onclick="toggleDay(this)">Sun</button>
+  </div>
+  <div class="quickdays">
+    <button type="button" class="qd" onclick="setDays('all')">Every day</button>
+    <button type="button" class="qd" onclick="setDays('week')">Mon–Fri</button>
+    <button type="button" class="qd" onclick="setDays('none')">Clear</button>
+  </div>
+  <div class="close-row">
+    <button class="btn ghost" onclick="dlgRem.close()">Cancel</button>
+    <button class="btn" onclick="saveReminder()">Save</button>
+  </div>
+</dialog>
+
+<dialog id="dlgRec">
+  <div class="dlg-title">Add a recipe day</div>
+  <label>Recipe / dish</label><input id="recName" placeholder="e.g. Sprouts salad">
+  <div class="row" style="margin-top:8px">
+    <div><label>Day</label>
+      <select id="recDay"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select>
+    </div>
+    <div><label>Time</label><input type="time" id="recTime"></div>
+  </div>
+  <div class="close-row">
+    <button class="btn ghost" onclick="dlgRec.close()">Cancel</button>
+    <button class="btn" onclick="saveRecipe()">Save</button>
+  </div>
+</dialog>
+
+<script>
+const DB = {
+  get(k,d){ try{const v=localStorage.getItem('mh_'+k); return v==null?d:JSON.parse(v)}catch(e){return d} },
+  set(k,v){ localStorage.setItem('mh_'+k, JSON.stringify(v)) }
+};
+const todayKey = ()=> new Date().toISOString().slice(0,10);
+const now = ()=> new Date();
+const DNAMES=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const WD=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const ICONS=['💧','🥤','🥛','🍵','🫖','🍋','🍎','🍌','🍇','🫐','🥭','🍓','🍊','🥜','🌰','🌱','🥗','🥦','🥕','🍅','🥒','🌽','🍚','🍲','🥣','🍛','🫓','🍳','🥚','🧀','🫘','🍯','☕','🧉','🏃','🚶','🧘','🏋️','🤸','💊','🩺','⚖️','😴','⏰'];
+
+if(!DB.get('reminders')){
+  DB.set('reminders',[
+    {id:1,name:'Warm lemon water',time:'06:30',icon:'🍋',repeat:'days',days:[0,1,2,3,4,5,6]},
+    {id:2,name:'Eat soaked almonds',time:'07:00',icon:'🥜',repeat:'days',days:[0,1,2,3,4,5,6]},
+    {id:3,name:'Green tea',time:'08:00',icon:'🍵',repeat:'days',days:[0,1,2,3,4,5,6]},
+    {id:4,name:'Soak chia seeds',time:'17:00',icon:'🌱',repeat:'days',days:[0,1,2,3,4,5,6]},
+    {id:5,name:'Lemon tea',time:'16:00',icon:'🍋',repeat:'days',days:[0,1,2,3,4,5,6]},
+    {id:6,name:'20 min walk',time:'18:30',icon:'🏃',repeat:'days',days:[0,1,2,3,4,5,6]},
+    {id:7,name:'Soak almonds for tomorrow',time:'22:00',icon:'🥜',repeat:'days',days:[0,1,2,3,4,5,6]}
+  ]);
+}
+
+function go(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById('p-'+p).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active', b.dataset.p===p));
+  if(p==='weight'){ drawChart(); renderBMI(); }
+  if(p==='diet'){ renderDietSuggest(); }
+  window.scrollTo(0,0);
+}
+
+function paintHeader(){
+  const s=DB.get('settings',{});
+  document.getElementById('hName').textContent = s.name || 'Friend';
+  document.getElementById('hDate').textContent = now().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('hStreak').textContent = '🔥 '+calcStreak()+' day streak';
+}
+function calcStreak(){
+  let n=0; const d=new Date();
+  for(let i=0;i<400;i++){
+    const k=new Date(d.getTime()-i*864e5).toISOString().slice(0,10);
+    const done=DB.get('done_'+k,{}); const water=DB.get('water_'+k,0);
+    const any=Object.values(done).some(Boolean)||water>0;
+    if(any) n++; else if(i===0) continue; else break;
+  }
+  return n;
+}
+
+/* ---- day helpers ---- */
+function effDays(r){ if(r.days) return r.days; if(r.repeat==='weekdays') return [1,2,3,4,5]; return [0,1,2,3,4,5,6]; }
+function firesToday(r){ const dow=new Date().getDay(); if(r.repeat==='hourly'||r.repeat==='once') return true; return effDays(r).includes(dow); }
+function describeRepeat(r){
+  if(r.repeat==='hourly') return 'Every hour';
+  if(r.repeat==='once') return 'Just once';
+  const d=effDays(r);
+  if(d.length>=7) return 'Every day';
+  if(d.length===5 && [1,2,3,4,5].every(x=>d.includes(x))) return 'Mon–Fri';
+  if(d.length===0) return 'Every day';
+  return d.slice().sort((a,b)=>a-b).map(x=>DNAMES[x]).join(', ');
+}
+function mealIcon(t){ return {Breakfast:'🍳','Mid-morning':'🍎',Lunch:'🍚','Evening snack':'☕',Dinner:'🍲'}[t]||'🍽️'; }
+
+/* ---------- TODAY'S PLAN (habits + meals merged by time) ---------- */
+function habitDoneMap(){ return DB.get('done_'+todayKey(), {}); }
+function renderPlan(){
+  const done=habitDoneMap(); const items=[];
+  DB.get('reminders',[]).forEach(r=>{ if(firesToday(r)) items.push({kind:'habit',ref:r,time:r.time,name:r.name,icon:r.icon,done:!!done[r.id]}); });
+  DB.get('diet_'+todayKey(),[]).forEach(m=>{ items.push({kind:'meal',ref:m,time:m.time,name:m.food,icon:mealIcon(m.type),sub:m.type}); });
+  items.sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+  const list=document.getElementById('planList'); list.innerHTML='';
+  if(items.length===0){ list.innerHTML='<div class="empty">Nothing planned yet.<br>Add reminders in Plan, or log meals in Diet.</div>'; updateRing(); return; }
+  items.forEach(it=>{
+    const el=document.createElement('div'); el.className='habit';
+    if(it.kind==='habit'){
+      el.innerHTML=`<div class="ico">${it.icon}</div><div class="t"><b>${it.name}</b><small>${to12(it.time)}</small></div><div class="check ${it.done?'on':''}">${it.done?'✓':''}</div>`;
+      el.querySelector('.check').onclick=()=>{ const d=habitDoneMap(); d[it.ref.id]=!d[it.ref.id]; DB.set('done_'+todayKey(),d); renderPlan(); paintHeader(); };
+    } else {
+      el.innerHTML=`<div class="ico" style="background:#e8f1ff">${it.icon}</div><div class="t"><b>${it.name}</b><small>${it.sub}${it.time?' · '+to12(it.time):''}</small></div><button class="x">✕</button>`;
+      el.querySelector('.x').onclick=()=>{ DB.set('diet_'+todayKey(), DB.get('diet_'+todayKey(),[]).filter(x=>x.id!==it.ref.id)); renderPlan(); renderDiet(); };
+    }
+    list.appendChild(el);
+  });
+  updateRing();
+}
+function updateRing(){
+  const todays=DB.get('reminders',[]).filter(firesToday); const done=habitDoneMap();
+  const total=todays.length, n=todays.filter(r=>done[r.id]).length;
+  const pct= total? Math.round(n/total*100):0;
+  document.getElementById('ringFill').style.strokeDashoffset = 264 - 264*pct/100;
+  document.getElementById('ringPct').textContent=pct+'%';
+  document.getElementById('doneCount').textContent=`${n} of ${total} habits done`;
+  document.getElementById('doneMsg').textContent = pct===0?"Let's start your day!" : pct<50?'Good start, keep going!' : pct<100?'Great going! 💪' : 'All done today! 🎉';
+}
+
+/* ---------- water ---------- */
+function renderWater(){
+  const goal=(DB.get('settings',{}).water)||8;
+  document.getElementById('wGoal').textContent=goal;
+  const cur=DB.get('water_'+todayKey(),0);
+  const row=document.getElementById('waterRow'); row.innerHTML='';
+  for(let i=0;i<goal;i++){
+    const g=document.createElement('span'); g.className='wglass'+(i<cur?' full':''); g.textContent='🥤';
+    g.onclick=()=>{ let c=DB.get('water_'+todayKey(),0); c=(i<c)?i:i+1; DB.set('water_'+todayKey(),c); renderWater(); paintHeader(); };
+    row.appendChild(g);
+  }
+  const t=document.createElement('div'); t.className='muted'; t.style.width='100%'; t.style.marginTop='6px'; t.textContent=`${cur} / ${goal} glasses`; row.appendChild(t);
+}
+
+/* ---------- reminders ---------- */
+let pickDays=new Set(); let pickIcon='💧';
+function renderChips(){ document.querySelectorAll('#dayChips .daychip').forEach(b=>b.classList.toggle('on', pickDays.has(+b.dataset.day))); }
+function toggleDay(b){ const d=+b.dataset.day; if(pickDays.has(d))pickDays.delete(d); else pickDays.add(d); renderChips(); }
+function setDays(mode){ pickDays.clear(); if(mode==='all')[0,1,2,3,4,5,6].forEach(d=>pickDays.add(d)); if(mode==='week')[1,2,3,4,5].forEach(d=>pickDays.add(d)); renderChips(); }
+function buildIconPicker(){
+  const box=document.getElementById('iconPick'); box.innerHTML='';
+  ICONS.forEach(ic=>{ const b=document.createElement('button'); b.type='button'; b.textContent=ic; b.className=ic===pickIcon?'on':''; b.onclick=()=>{ pickIcon=ic; buildIconPicker(); }; box.appendChild(b); });
+}
+function openReminder(){ document.getElementById('remName').value=''; document.getElementById('remTime').value='08:00'; pickIcon='💧'; buildIconPicker(); setDays('all'); dlgRem.showModal(); }
+function saveReminder(){
+  const name=document.getElementById('remName').value.trim(); if(!name){alert('Please type a name');return;}
+  const days=[...pickDays].sort((a,b)=>a-b);
+  if(days.length===0){ alert('Please choose at least one day (or tap "Every day").'); return; }
+  const rem=DB.get('reminders',[]);
+  rem.push({id:Date.now(),name,time:document.getElementById('remTime').value||'08:00',icon:pickIcon,repeat:'days',days});
+  DB.set('reminders',rem); dlgRem.close(); renderReminders(); renderPlan();
+}
+function renderReminders(){
+  const rem=DB.get('reminders',[]).slice().sort((a,b)=>a.time.localeCompare(b.time));
+  const box=document.getElementById('remList'); box.innerHTML='';
+  if(rem.length===0){box.innerHTML='<div class="empty">No reminders yet.</div>';return;}
+  rem.forEach(r=>{
+    const el=document.createElement('div'); el.className='item';
+    el.innerHTML=`<div class="ic">${r.icon}</div><div class="t"><b>${r.name}</b><small>${to12(r.time)} · <span class="pill">${describeRepeat(r)}</span></small></div><button class="x">✕</button>`;
+    el.querySelector('.x').onclick=()=>{ DB.set('reminders', DB.get('reminders',[]).filter(x=>x.id!==r.id)); renderReminders(); renderPlan(); };
+    box.appendChild(el);
+  });
+}
+
+/* ---------- recipes ---------- */
+function openRecipe(){ document.getElementById('recName').value=''; document.getElementById('recTime').value='13:00'; dlgRec.showModal(); }
+function saveRecipe(){
+  const name=document.getElementById('recName').value.trim(); if(!name){alert('Please type a dish');return;}
+  const list=DB.get('recipes',[]);
+  list.push({id:Date.now(),name,day:document.getElementById('recDay').value,time:document.getElementById('recTime').value});
+  DB.set('recipes',list); dlgRec.close(); renderRecipes(); renderDietSuggest();
+}
+function renderRecipes(){
+  const list=DB.get('recipes',[]).slice().sort((a,b)=>WD.indexOf(a.day)-WD.indexOf(b.day)||(a.time||'').localeCompare(b.time||''));
+  const box=document.getElementById('recipeList'); box.innerHTML='';
+  if(list.length===0){box.innerHTML='<div class="empty">No recipe days set.</div>';return;}
+  list.forEach(r=>{
+    const el=document.createElement('div'); el.className='item';
+    el.innerHTML=`<div class="ic" style="background:#fde8f3">🍲</div><div class="t"><b>${r.name}</b><small><span class="pill pink">${r.day}</span> ${to12(r.time)}</small></div><button class="x">✕</button>`;
+    el.querySelector('.x').onclick=()=>{ DB.set('recipes', DB.get('recipes',[]).filter(x=>x.id!==r.id)); renderRecipes(); renderDietSuggest(); };
+    box.appendChild(el);
+  });
+}
+
+/* ---------- diet ---------- */
+function renderDietSuggest(){
+  const box=document.getElementById('dietSuggest'); if(!box) return;
+  const today=WD[new Date().getDay()];
+  const recs=DB.get('recipes',[]).filter(r=>r.day===today).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  // fill datalist too
+  const dl=document.getElementById('dishOptions'); dl.innerHTML='';
+  recs.forEach(r=>{ const o=document.createElement('option'); o.value=r.name; dl.appendChild(o); });
+  if(recs.length===0){ box.innerHTML=''; return; }
+  box.innerHTML=`<div class="muted" style="margin:0 0 6px">Your fixed dishes for ${today} — tap to use:</div>`;
+  const wrap=document.createElement('div'); wrap.className='chips';
+  recs.forEach(r=>{ const c=document.createElement('button'); c.type='button'; c.className='chip'; c.textContent='🍲 '+r.name+(r.time?' · '+to12(r.time):''); c.onclick=()=>{ document.getElementById('mealFood').value=r.name; if(r.time) document.getElementById('mealTime').value=r.time; }; wrap.appendChild(c); });
+  box.appendChild(wrap);
+}
+function addMeal(){
+  const food=document.getElementById('mealFood').value.trim(); if(!food){alert('Please type or pick a dish');return;}
+  const k='diet_'+todayKey(); const list=DB.get(k,[]);
+  list.push({id:Date.now(),type:document.getElementById('mealType').value,time:document.getElementById('mealTime').value||to24(now()),food});
+  DB.set(k,list); document.getElementById('mealFood').value=''; renderDiet(); renderPlan();
+}
+function renderDiet(){
+  const list=DB.get('diet_'+todayKey(),[]).slice().sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  const box=document.getElementById('dietList'); box.innerHTML='';
+  if(list.length===0){box.innerHTML='<div class="empty">Nothing logged yet today.</div>';return;}
+  list.forEach(m=>{
+    const el=document.createElement('div'); el.className='item';
+    el.innerHTML=`<div class="ic" style="background:#e8f1ff">${mealIcon(m.type)}</div><div class="t"><b>${m.food}</b><small><span class="pill blue">${m.type}</span> ${m.time?to12(m.time):''}</small></div><button class="x">✕</button>`;
+    el.querySelector('.x').onclick=()=>{ DB.set('diet_'+todayKey(), DB.get('diet_'+todayKey(),[]).filter(x=>x.id!==m.id)); renderDiet(); renderPlan(); };
+    box.appendChild(el);
+  });
+}
+
+/* ---------- weight ---------- */
+function addWeight(){
+  const v=parseFloat(document.getElementById('wInput').value); if(!v){alert('Enter a weight');return;}
+  const list=DB.get('weights',[]).filter(w=>w.date!==todayKey());
+  list.push({date:todayKey(),kg:v}); list.sort((a,b)=>a.date.localeCompare(b.date));
+  DB.set('weights',list); document.getElementById('wInput').value=''; renderWeight(); drawChart(); renderBMI();
+}
+function renderWeight(){
+  const list=DB.get('weights',[]); const s=DB.get('settings',{});
+  const cur=list.length?list[list.length-1].kg:null;
+  document.getElementById('curW').textContent=cur!=null?cur+' kg':'—';
+  const d=document.getElementById('wDelta');
+  if(list.length>=2){ const diff=(list[list.length-1].kg-list[0].kg).toFixed(1); d.textContent = diff<=0?`↓ ${Math.abs(diff)} kg since you started 🎉`:`↑ ${diff} kg since start`; }
+  else if(s.goal&&cur){ d.textContent=`Goal: ${s.goal} kg (${(cur-s.goal).toFixed(1)} kg to go)`; }
+  else d.textContent='Add your weight to start tracking';
+  const h=document.getElementById('wHist'); h.innerHTML='';
+  list.slice().reverse().forEach(w=>{ const el=document.createElement('div'); el.className='item'; el.innerHTML=`<div class="t"><b>${w.kg} kg</b><small>${new Date(w.date).toLocaleDateString(undefined,{day:'numeric',month:'short'})}</small></div>`; h.appendChild(el); });
+}
+function renderBMI(){
+  const s=DB.get('settings',{}); const list=DB.get('weights',[]);
+  const box=document.getElementById('bmiBox');
+  if(!s.height||list.length===0){ box.innerHTML='<div class="muted">Add your height (Me tab) and a weight to see this.</div>'; return; }
+  const m=s.height/100, kg=list[list.length-1].kg, bmi=kg/(m*m);
+  const cat = bmi<18.5?'Underweight':bmi<25?'Normal ✅':bmi<30?'Overweight':'Obese';
+  const lo=(18.5*m*m), hi=(24.9*m*m), pos=Math.max(0,Math.min(100,(bmi-15)/(35-15)*100));
+  box.innerHTML=`
+    <div class="kv"><span>Your BMI</span><b>${bmi.toFixed(1)} — ${cat}</b></div>
+    <div class="bmibar"><div class="dot" style="left:${pos}%"></div></div>
+    <div class="muted" style="display:flex;justify-content:space-between;font-size:11px"><span>15</span><span>Healthy 18.5–24.9</span><span>35</span></div>
+    <div class="kv" style="margin-top:8px"><span>Healthy weight for your height</span><b>${lo.toFixed(0)}–${hi.toFixed(0)} kg</b></div>
+    ${kg>hi?`<div class="kv"><span>To reach healthy range</span><b>lose ~${(kg-hi).toFixed(1)} kg</b></div>`:''}`;
+}
+function drawChart(){
+  const c=document.getElementById('wChart'); if(!c)return; const ctx=c.getContext('2d');
+  const W=c.width,H=c.height; ctx.clearRect(0,0,W,H);
+  const list=DB.get('weights',[]); const s=DB.get('settings',{});
+  if(list.length<1){ ctx.fillStyle='#9bb8ae'; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.fillText('Add weights to see your graph',W/2,H/2); return; }
+  const vals=list.map(w=>w.kg); let mn=Math.min(...vals),mx=Math.max(...vals);
+  if(s.goal){mn=Math.min(mn,s.goal);mx=Math.max(mx,s.goal);} if(mn===mx){mn-=1;mx+=1;}
+  const pad=40,gx=W-pad-10,gy=H-pad-10;
+  const X=i=> list.length>1? pad+i*(gx-pad)/(list.length-1):(pad+gx)/2;
+  const Y=v=> (gy-10)-(v-mn)/(mx-mn)*(gy-pad);
+  if(s.goal){ ctx.strokeStyle='#f59e0b'; ctx.setLineDash([5,5]); ctx.beginPath(); ctx.moveTo(pad,Y(s.goal)); ctx.lineTo(gx,Y(s.goal)); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle='#f59e0b'; ctx.font='11px sans-serif'; ctx.textAlign='left'; ctx.fillText('Goal '+s.goal,pad+2,Y(s.goal)-4); }
+  ctx.strokeStyle='#10b981'; ctx.lineWidth=3; ctx.beginPath();
+  list.forEach((w,i)=>{ const x=X(i),y=Y(w.kg); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }); ctx.stroke();
+  ctx.lineTo(X(list.length-1),gy); ctx.lineTo(X(0),gy); ctx.closePath(); ctx.fillStyle='rgba(16,185,129,.12)'; ctx.fill();
+  ctx.fillStyle='#059669'; list.forEach((w,i)=>{ ctx.beginPath(); ctx.arc(X(i),Y(w.kg),4,0,7); ctx.fill(); });
+}
+
+/* ---------- settings ---------- */
+function saveSettings(){
+  DB.set('settings',{name:document.getElementById('setName').value.trim(),water:parseInt(document.getElementById('setWater').value)||8,goal:parseFloat(document.getElementById('setGoal').value)||null,height:parseFloat(document.getElementById('setHeight').value)||null});
+  paintHeader(); renderWater(); renderWeight(); renderBMI(); alert('Saved 👍');
+}
+function loadSettings(){
+  const s=DB.get('settings',{});
+  document.getElementById('setName').value=s.name||''; document.getElementById('setWater').value=s.water||8; document.getElementById('setGoal').value=s.goal||''; document.getElementById('setHeight').value=s.height||'';
+}
+function resetDay(){ if(confirm("Clear today's checkmarks and water?")){ DB.set('done_'+todayKey(),{}); DB.set('water_'+todayKey(),0); renderPlan(); renderWater(); paintHeader(); } }
+
+/* ---------- notifications ---------- */
+let swReg=null;
+function askNotif(){
+  if(!('Notification' in window)){ document.getElementById('notifState').textContent='This browser has no pop-ups, but on-screen alerts still work.'; return; }
+  Notification.requestPermission().then(p=>{ document.getElementById('notifState').textContent = p==='granted'?'✅ Reminders are ON.':'Not allowed. On-screen alerts still work.'; });
+}
+function notifState(){ const el=document.getElementById('notifState'); if(!('Notification' in window)){el.textContent='On-screen alerts active.';return;} el.textContent = Notification.permission==='granted'?'✅ Reminders are ON.':'Tap the button to turn on.'; }
+let firedThisMinute={};
+function reminderTick(){
+  checkNewDay();
+  const t=now(); const hhmm=String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0');
+  const dow=t.getDay(); const key=todayKey()+' '+hhmm;
+  DB.get('reminders',[]).forEach(r=>{
+    let due=false;
+    if(r.repeat==='hourly') due=hhmm.slice(3)===r.time.slice(3);
+    else if(r.repeat==='once') due=r.time===hhmm;
+    else due=r.time===hhmm && effDays(r).includes(dow);
+    if(due&&firedThisMinute[r.id]!==key){ firedThisMinute[r.id]=key; fire(r); }
+  });
+}
+function fire(r){
+  const title=r.icon+' '+r.name, body='Time for: '+r.name;
+  try{ if('Notification' in window && Notification.permission==='granted'){ if(swReg&&swReg.active){ swReg.active.postMessage({type:'notify',title,body,tag:'r'+r.id}); } else new Notification(title,{body,icon:'icon-192.png'}); } }catch(e){}
+  beep();
+  const bar=document.createElement('div');
+  bar.style.cssText='position:fixed;top:14px;left:50%;transform:translateX(-50%);background:#0f2e25;color:#fff;padding:12px 18px;border-radius:14px;z-index:99;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.3);max-width:90%';
+  bar.textContent=`${r.icon} ${r.name} — now!`; document.body.appendChild(bar); setTimeout(()=>bar.remove(),6000);
+}
+function beep(){ try{ const a=new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(),g=a.createGain(); o.connect(g); g.connect(a.destination); o.frequency.value=660; o.start(); g.gain.setValueAtTime(.2,a.currentTime); g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.5); o.stop(a.currentTime+.5);}catch(e){} }
+
+/* ---------- install ---------- */
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferredPrompt=e; document.getElementById('installCard').style.display='block'; });
+function installApp(){ if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt.userChoice.then(()=>{ deferredPrompt=null; document.getElementById('installCard').style.display='none'; }); } else { alert('To install: open your browser menu and tap "Add to Home Screen".'); } }
+
+/* ---------- helpers ---------- */
+function to12(t){ if(!t)return''; let [h,m]=t.split(':').map(Number); const ap=h<12?'AM':'PM'; h=h%12||12; return `${h}:${String(m).padStart(2,'0')} ${ap}`; }
+function to24(d){ return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+
+document.getElementById('tipBox').innerHTML =
+ '• Drink water before every meal — it fills you up.<br>'+
+ '• Half your plate = vegetables/salad.<br>'+
+ '• Protein at each meal: dal, curd, paneer, sprouts.<br>'+
+ '• Finish dinner by 8 PM, nothing after.<br>'+
+ '• Walk 30–40 min daily. Take stairs.<br>'+
+ '• Sleep 7–8 hours. Poor sleep = more hunger.<br>'+
+ '• Weigh once a week, same morning.';
+
+function initTimes(){ document.getElementById('mealTime').value=to24(now()); }
+
+/* ---------- new-day reset ("new day, new journey") ---------- */
+let renderDay=todayKey();
+function renderAll(){ paintHeader(); renderPlan(); renderWater(); renderReminders(); renderRecipes(); renderDiet(); renderDietSuggest(); renderWeight(); renderBMI(); }
+function checkNewDay(){ if(todayKey()!==renderDay){ renderDay=todayKey(); firedThisMinute={}; renderAll(); } }
+
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').then(reg=>{ swReg=reg; }).catch(()=>{}); }
+
+buildIconPicker();
+paintHeader(); renderPlan(); renderWater(); renderReminders(); renderRecipes(); renderDiet(); renderDietSuggest(); renderWeight(); renderBMI(); loadSettings(); notifState(); initTimes();
+setInterval(reminderTick,15000); reminderTick();
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ checkNewDay(); renderAll(); } });
+</script>
+<script>
+/* ===== NATIVE ANDROID NOTIFICATIONS (fires even when screen is off / app closed) ===== */
+(function(){
+  var isNative = window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform();
+  if(!isNative) return;
+  var LN = Capacitor.Plugins.LocalNotifications;
+  if(!LN) return;
+  function nextTime(hh,mm){ var d=new Date(); d.setHours(hh,mm,0,0); if(d.getTime()<=Date.now()) d.setDate(d.getDate()+1); return d; }
+  async function sync(){
+    try{
+      await LN.requestPermissions();
+      try{ await LN.createChannel({id:'reminders',name:'Reminders',description:'Habit and meal reminders',importance:5,vibration:true,visibility:1,lights:true}); }catch(e){}
+      var pend = await LN.getPending();
+      if(pend && pend.notifications && pend.notifications.length){ await LN.cancel({notifications:pend.notifications.map(function(n){return {id:n.id};})}); }
+      var list=[]; var id=1;
+      var rems=[]; try{ rems=JSON.parse(localStorage.getItem('mh_reminders')||'[]'); }catch(e){}
+      rems.forEach(function(r){
+        var parts=(r.time||'08:00').split(':'); var hh=+parts[0], mm=+parts[1];
+        var title=(r.icon||'⏰')+' '+r.name, body='Time for: '+r.name, ch='reminders';
+        if(r.repeat==='hourly'){ list.push({id:id++,title:title,body:body,channelId:ch,schedule:{every:'hour'}}); }
+        else if(r.repeat==='once'){ list.push({id:id++,title:title,body:body,channelId:ch,schedule:{at:nextTime(hh,mm)}}); }
+        else { var days=r.days||[0,1,2,3,4,5,6]; days.forEach(function(dd){ list.push({id:id++,title:title,body:body,channelId:ch,schedule:{on:{weekday:dd+1,hour:hh,minute:mm},repeats:true}}); }); }
+      });
+      if(list.length) await LN.schedule({notifications:list});
+      console.log('Native notifications scheduled:', list.length);
+    }catch(e){ console.log('native notif error', e); }
+  }
+  var t=null; function debounced(){ clearTimeout(t); t=setTimeout(sync,800); }
+  try{ var _s=DB.set.bind(DB); DB.set=function(k,v){ _s(k,v); if(k==='reminders') debounced(); }; }catch(e){}
+  window.addEventListener('load', function(){ setTimeout(sync,1500); });
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) debounced(); });
+})();
+</script>
+</body>
+</html>
